@@ -1,10 +1,22 @@
-require('dotenv').config();
+require("dotenv").config();
+const connectDB = require("./database");
+const Person = require("./model/user");
 
-
-let Person;
+let John = new Person({
+  name: "John",
+  age: 24,
+  favoriteFoods: ["pizza", "pasta"],
+});
 
 const createAndSavePerson = (done) => {
-  done(null /*, data*/);
+  John.save()
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+  done(null, data);
 };
 
 const createManyPeople = (arrayOfPeople, done) => {
@@ -47,9 +59,24 @@ const removeManyPeople = (done) => {
 
 const queryChain = (done) => {
   const foodToSearch = "burrito";
-
-  done(null /*, data*/);
+  var query = Person.find(foodToSearch)
+    .sort({ name: 1 })
+    .limit(2)
+    .select({ name: true, favoriteFoods: true })
+    .exec((err,data)=>{
+      if(err) return console.log(err)
+        return done(null, data)
+    });
+  // done(null /*, data*/);
 };
+
+const MONGO_URL = process.env.MONGO_URL;
+if (!MONGO_URL) {
+  console.info("MongoDB URL not found");
+  process.exit(1);
+}
+
+connectDB(MONGO_URL);
 
 /** **Well Done !!**
 /* You completed these challenges, let's go celebrate !
